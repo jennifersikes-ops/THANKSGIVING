@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{
   --bg:#ECE6F6; --bg2:#E2DAF0; --panel:#FFFFFF; --ink:#22183D; --muted:#5D5380; --line:#CFC5E3;
@@ -141,6 +142,9 @@ body::after{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-
 .closed .stamp-big{display:inline-block;font-family:"Special Elite","Courier New",monospace;color:var(--cran);border:4px solid var(--cran);padding:.1em .5em;font-size:clamp(2rem,6vw,3.2rem);transform:rotate(-6deg);margin-bottom:20px;animation:stamp2 .7s cubic-bezier(.2,1.6,.4,1)}
 @keyframes stamp2{0%{transform:rotate(-6deg) scale(3);opacity:0}100%{transform:rotate(-6deg) scale(1);opacity:1}}
 .evidence{background:var(--panel);border-radius:8px;padding:16px 20px;margin-top:22px}
+.evidence label{display:block;font-weight:700;margin:14px 0 4px}
+.evidence input,.evidence textarea{width:100%;padding:.5em .7em;border:1.5px solid var(--line);border-radius:6px;background:var(--bg)}
+.evidence textarea{min-height:5.5em;resize:vertical}
 footer{margin:40px 0 20px;text-align:center;font-size:.85rem}
 footer button{background:none;border:0;color:var(--muted);text-decoration:underline}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
@@ -153,6 +157,7 @@ const DATA = {"stations": [{"title": "The Frosty Journal", "teks": "TEKS 6.9A", 
 const SUSPECTS=[["Auntie Cranberry","The tart-tongued head of the dessert committee. The Professor called her sauce “too jiggly” last year."],["Chef Pumpkin Pie","The spicy, temperamental cook. Wanted the Professor’s corner office for a bigger kitchen."],["Sir Spud Mashington","A lumpy, smooth-talking night guard. Lost a bet with the Professor about the next full moon."],["Gravy Boat Gary","A drippy sailor who studies the ocean. The Professor proved his tide predictions wrong."],["Cornelia Cornbread","The crumbly, quiet greenhouse keeper. Wanted credit for discovering a new star."],["Captain Stuffing","A puffed-up retired astronaut. Jealous the Professor got the new telescope."]];
 const ROOMS=["Kitchen","Telescope Dome","Dining Hall","Pantry","Library","Greenhouse"];
 const METHODS=["Oven","Grill","Slow Cooker","Roasting Pan","Smoker","Deep Fryer"];
+const EVQ=["Professor Gobbles was cooked on Thanksgiving week, when the Northern Hemisphere has short days and cold weather. Explain why, using the words “tilt” and “direct sunlight.”","The Professor’s note says the stolen discovery was “a 3,000 K star with 50,000 times the Sun’s luminosity.” What type of star is it, and what will happen to it at the end of its life?"];
 const KEY="gobbles-escape-v1", PENALTY=60000;
 
 function fnv(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h}
@@ -311,10 +316,12 @@ function closedHTML(){
   <h1>Cornelia Cornbread, in the Greenhouse, with the Deep Fryer.</h1>
   ${S.reveal.map(p=>`<p>${esc(p)}</p>`).join("")}
   <p class="muted">Team ${esc(S.team)} solved the case in ${fmt(S.end-S.start)} using ${3-S.hints} Gravy Hint${3-S.hints===1?"":"s"}.</p>
-  <div class="evidence"><h2>Make it stick</h2><p>The Coroner needs your science evidence. Write your answers on paper and bring them up:</p>
-  <ol><li>Professor Gobbles was cooked on Thanksgiving week, when the Northern Hemisphere has short days and cold weather. Explain why, using the words <i>tilt</i> and <i>direct sunlight</i>.</li>
-  <li>The Professor’s note says the stolen discovery was “a 3,000 K star with 50,000 times the Sun’s luminosity.” What type of star is it, and what will happen to it at the end of its life?</li></ol></div>
-  <footer><button id="reset">Teacher: reset this device</button></footer></div></div>`;
+  <div class="evidence"><h2>Make it stick</h2><p>The Coroner needs your science evidence. Fill this in, then download your case report.</p>
+  <label for="evn">Detectives’ names</label><input id="evn" data-ev="names" value="${esc((S.ev||{}).names||"")}">
+  ${EVQ.map((q,k)=>`<label for="ev${k+1}">${k+1}. ${esc(q)}</label><textarea id="ev${k+1}" data-ev="a${k+1}">${esc((S.ev||{})["a"+(k+1)]||"")}</textarea>`).join("")}
+  <div class="lock"><button class="btn" id="pdf">Download case report (PDF)</button><div class="lockmsg" id="pdfmsg" role="status"></div></div></div>
+  <div style="margin-top:28px;text-align:center"><button class="btn" id="reset" style="font-size:1.15rem;padding:.8em 1.6em">Reset for the next class</button>
+  <p class="muted" style="font-size:.9rem">Erases this team’s progress and returns to the start screen.</p></div></div></div>`;
 }
 
 function bind(){
@@ -335,6 +342,8 @@ function bind(){
   on("#hint","click",()=>{if(S.hints>0&&confirm("Spend 1 of your team’s Gravy Hints on this station?")){S.hints--;S.hinted[S.cur]=1;save();render()}});
   on("#try","click",tryLock);
   on("#accuse","click",accuse);
+  on("[data-ev]","input",e=>{S.ev=S.ev||{};S.ev[e.currentTarget.dataset.ev]=e.currentTarget.value;save()});
+  on("#pdf","click",makePDF);
 }
 
 function tryLock(){
@@ -366,6 +375,26 @@ function accuse(){
   else{S.lockUntil.final=Date.now()+PENALTY;save();render();}
 }
 
+function makePDF(){
+  const ev=S.ev||{}, msg=$("#pdfmsg");
+  if(!(ev.names||"").trim()||!(ev.a1||"").trim()||!(ev.a2||"").trim()){msg.className="lockmsg bad";msg.textContent="Fill in your names and both evidence answers first.";return}
+  if(!window.jspdf){msg.className="lockmsg bad";msg.textContent="The PDF maker didn’t load. In the print window, choose “Save as PDF.”";window.print();return}
+  const {jsPDF}=window.jspdf, d=new jsPDF({unit:"pt",format:"letter"}), W=612, M=54, TW=W-2*M; let y=M;
+  const line=(txt,size=11,style="normal",font="helvetica",gap=4)=>{d.setFont(font,style);d.setFontSize(size);d.splitTextToSize(String(txt),TW).forEach(l=>{if(y>740){d.addPage();y=M}d.text(l,M,y);y+=size*1.3});y+=gap};
+  d.setTextColor(176,35,62);d.setFont("courier","bold");d.setFontSize(24);d.text("CASE CLOSED",W-M-10,y+40,{align:"right",angle:8});d.setTextColor(0);
+  line("Who Cooked Professor Gobbles?",20,"bold","courier",2);
+  line("Official Case Report, Harvest Hill Observatory",11,"normal","courier",14);
+  line("Team: "+S.team,12,"bold");line("Detectives: "+ev.names,11);line("Date: "+new Date(S.end||Date.now()).toLocaleDateString(),11);
+  line("Time to solve: "+fmt(S.end-S.start)+"     Gravy Hints used: "+(3-S.hints),11,"normal","helvetica",14);
+  line("The verdict",14,"bold","courier");
+  line("Cornelia Cornbread, in the Greenhouse, with the Deep Fryer.",11,"normal","helvetica",14);
+  line("Evidence",14,"bold","courier");
+  EVQ.forEach((q,k)=>{line((k+1)+". "+q,11,"bold");line(ev["a"+(k+1)],11,"normal","helvetica",10)});
+  y+=6;line("Alibi Cards collected",14,"bold","courier");
+  Object.keys(S.alibis).sort().forEach(k=>line("Alibi "+(+k+1)+": "+S.alibis[k].text,10,"normal","helvetica",4));
+  d.save("Case-Report-"+(S.team.replace(/[^A-Za-z0-9-]+/g,"-")||"Team")+".pdf");
+  msg.className="lockmsg good";msg.textContent="Case report downloaded. Turn it in the way your teacher asks.";
+}
 let timer;
 function tick(){
   clearTimeout(timer);
