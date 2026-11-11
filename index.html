@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Who Cooked Professor Gobbles?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECE6F6; --bg2:#E2DAF0; --panel:#FFFFFF; --ink:#22183D; --muted:#5D5380; --line:#CFC5E3;
+  --gold:#A9620A; --goldbg:#F7DFA9; --cran:#B0233E; --ok:#1F7A4D; --folder:#E4C27A; --folderink:#3A2A10;
+  --hot:#3E6FD6; --cool:#C2402B; --star:#8B7FB3; --sunfill:#F2B33D;
+  color-scheme: light;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#171129; --bg2:#20183A; --panel:#241B42; --ink:#EDE7FA; --muted:#AFA5CF; --line:#3B3062;
+    --gold:#F0A93B; --goldbg:#3D2E12; --cran:#F0566F; --ok:#5FD49A; --folder:#D9B46A; --folderink:#2E2008;
+    --hot:#8FB8FF; --cool:#FF8A6B; --star:#6C6296; --sunfill:#F6BE4F; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#171129; --bg2:#20183A; --panel:#241B42; --ink:#EDE7FA; --muted:#AFA5CF; --line:#3B3062;
+  --gold:#F0A93B; --goldbg:#3D2E12; --cran:#F0566F; --ok:#5FD49A; --folder:#D9B46A; --folderink:#2E2008;
+  --hot:#8FB8FF; --cool:#FF8A6B; --star:#6C6296; --sunfill:#F6BE4F; color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",Verdana,system-ui,sans-serif;min-height:100vh}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.5;
+  background-image:radial-gradient(1.2px 1.2px at 12% 18%,var(--star) 50%,transparent 51%),radial-gradient(1px 1px at 72% 9%,var(--star) 50%,transparent 51%),radial-gradient(1.4px 1.4px at 88% 42%,var(--star) 50%,transparent 51%),radial-gradient(1px 1px at 33% 64%,var(--star) 50%,transparent 51%),radial-gradient(1.2px 1.2px at 55% 88%,var(--star) 50%,transparent 51%),radial-gradient(1px 1px at 5% 80%,var(--star) 50%,transparent 51%);
+  background-size:420px 420px}
+h1,h2,h3,.type{font-family:"Special Elite","Courier New",Courier,monospace;font-weight:400}
+h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;margin:0 0 .4em}
+h2{font-size:1.6rem;margin:0 0 .3em}
+h3{font-size:1.15rem;margin:1.2em 0 .4em}
+p{margin:.5em 0}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:20px}
+.btn{background:var(--gold);color:var(--bg);border:0;border-radius:6px;padding:.65em 1.2em;font-weight:700}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.muted{color:var(--muted)}
+.hidden{display:none!important}
+
+/* intro */
+.intro{max-width:760px;margin:4vh auto 40px}
+.intro .story p{font-size:1.1rem}
+.intro .story p:first-child{font-family:"Special Elite","Courier New",monospace;color:var(--gold)}
+.suspects{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:18px 0 26px}
+.suspect{background:var(--panel);border-left:4px solid var(--cran);padding:12px 14px;border-radius:4px}
+.suspect b{display:block}
+.suspect span{font-size:.9rem;color:var(--muted)}
+.start{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.start input{flex:1 1 240px;padding:.6em .8em;border:1.5px solid var(--line);border-radius:6px;background:var(--panel)}
+
+/* game */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg2);border-bottom:1px solid var(--line)}
+body::after{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg2)}
+.topbar .wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:10px 20px}
+.topbar .case{font-family:"Special Elite","Courier New",monospace;font-size:1.15rem;margin-right:auto}
+.stat{font-variant-numeric:tabular-nums}
+.stat b{color:var(--gold)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 6px}
+.tab{background:var(--panel);border:1.5px solid var(--line);border-radius:999px;padding:.35em .9em;font-size:.95rem}
+.tab[aria-current="true"]{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.tab.done{color:var(--ok);border-color:var(--ok)}
+.tab:disabled{opacity:.4;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.station{background:var(--panel);border-radius:8px;padding:22px 24px 26px}
+.station .teks{color:var(--muted);font-size:.9rem}
+.story-line{border-left:3px solid var(--gold);padding-left:12px;font-style:italic}
+.q{margin:18px 0}
+.q > p{font-weight:700;margin-bottom:8px}
+.choices{display:grid;gap:6px}
+.choice{display:flex;gap:12px;align-items:flex-start;text-align:left;background:transparent;border:1.5px solid var(--line);border-radius:6px;padding:.5em .8em}
+.choice .num{font-family:"Special Elite","Courier New",monospace;min-width:1.6em;height:1.6em;display:inline-grid;place-items:center;border-radius:50%;border:1.5px solid var(--muted);flex:none}
+.choice[aria-pressed="true"]{border-color:var(--gold);background:var(--goldbg)}
+.choice[aria-pressed="true"] .num{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+
+/* lock */
+.lock{margin-top:24px;border-top:2px dashed var(--line);padding-top:18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.dials{display:flex;gap:6px}
+.dial{width:2.4em;height:3em;text-align:center;font-family:"Special Elite","Courier New",monospace;font-size:1.5rem;border:2px solid var(--line);border-radius:6px;background:var(--bg);text-transform:uppercase}
+.dial.word{width:2.1em}
+.lockmsg{flex-basis:100%;min-height:1.5em;font-weight:700}
+.lockmsg.bad{color:var(--cran)} .lockmsg.good{color:var(--ok)}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.hintbox{margin-top:14px;background:var(--goldbg);border-radius:6px;padding:10px 14px}
+
+/* cards */
+.envelope{margin:16px 0}
+.cardrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.scard{text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:6px;padding:10px;position:relative}
+.scard b{display:block;margin-bottom:2px}
+.scard small{color:var(--muted);line-height:1.35;display:block}
+.scard .ltr{position:absolute;top:6px;right:8px;font-family:"Special Elite","Courier New",monospace;color:var(--gold)}
+.scard.used{opacity:.35}
+.seq{display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap}
+.slot{width:2em;height:2.4em;display:grid;place-items:center;border-bottom:2px solid var(--muted);font-family:"Special Elite","Courier New",monospace;font-size:1.4rem}
+
+/* svg models */
+.model{margin:14px 0;background:var(--bg);border-radius:8px;padding:10px}
+.model svg{width:100%;height:auto;display:block}
+.model .ctrl{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.model .ctrl button{font-size:.9rem;padding:.3em .8em}
+.model .ctrl button[aria-pressed="true"]{border-color:var(--gold);background:var(--goldbg)}
+
+/* case file */
+.folder{background:var(--folder);color:var(--folderink);border-radius:4px 14px 6px 6px;padding:18px 16px 16px;position:sticky;top:76px}
+.folder h2{font-size:1.3rem;margin-bottom:4px}
+.folder .sub{font-size:.85rem;opacity:.8;margin:0 0 10px}
+.fcol h3{font-size:.95rem;margin:12px 0 4px;opacity:.85}
+.fcol ul{list-style:none;margin:0;padding:0}
+.fcol li{padding:3px 6px;position:relative;font-size:.95rem}
+.fcol li.cleared{text-decoration:line-through;opacity:.5}
+.fcol li .stamp{position:absolute;right:4px;top:50%;transform:translateY(-50%) rotate(-8deg);font-family:"Special Elite","Courier New",monospace;color:#A0172F;border:2px solid #A0172F;padding:0 5px;font-size:.75rem;opacity:.9;text-decoration:none}
+.fcol li.fresh .stamp{animation:stamp .55s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp{0%{transform:translateY(-50%) rotate(-8deg) scale(3);opacity:0}100%{transform:translateY(-50%) rotate(-8deg) scale(1);opacity:.9}}
+.alibis{margin-top:14px;font-size:.85rem}
+.alibis p{border-top:1px dashed rgba(0,0,0,.25);padding-top:6px}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,6,20,.6);display:grid;place-items:center;z-index:20;padding:20px}
+.modal .card{background:var(--folder);color:var(--folderink);max-width:520px;width:100%;border-radius:6px;padding:26px 28px;transform:rotate(-1deg)}
+.modal .card h2{margin-bottom:10px}
+.modal .card .clears{font-weight:700;margin:12px 0 18px}
+.modal .card .btn{background:var(--folderink);color:var(--folder)}
+
+/* final */
+.final label{display:block;margin:12px 0 4px;font-weight:700}
+.final select{width:100%;max-width:360px;padding:.5em;border:1.5px solid var(--line);border-radius:6px;background:var(--bg)}
+.closed{max-width:720px;margin:6vh auto}
+.closed .stamp-big{display:inline-block;font-family:"Special Elite","Courier New",monospace;color:var(--cran);border:4px solid var(--cran);padding:.1em .5em;font-size:clamp(2rem,6vw,3.2rem);transform:rotate(-6deg);margin-bottom:20px;animation:stamp2 .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes stamp2{0%{transform:rotate(-6deg) scale(3);opacity:0}100%{transform:rotate(-6deg) scale(1);opacity:1}}
+.evidence{background:var(--panel);border-radius:8px;padding:16px 20px;margin-top:22px}
+footer{margin:40px 0 20px;text-align:center;font-size:.85rem}
+footer button{background:none;border:0;color:var(--muted);text-decoration:underline}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const DATA = {"stations": [{"title": "The Frosty Journal", "teks": "TEKS 6.9A", "kind": "mc", "story": "The Professor’s journal, last entry: “November 26. Chilly here in Texas, but my cousin in Argentina is packing for the beach. I know why. Do you?”", "qs": [["On Thanksgiving in late November, the Northern Hemisphere is tilted:", [["3", "toward the Sun"], ["7", "away from the Sun"], ["5", "neither toward nor away from the Sun"]]], ["On the same day in Argentina (Southern Hemisphere), the season is:", [["2", "fall"], ["4", "late spring, heading into summer"], ["8", "winter"]]], ["The main reason Texas is colder in November than in July is:", [["1", "Earth is farther from the Sun in November"], ["6", "sunlight hits Texas at a lower angle and the days are shorter"], ["9", "the Sun gives off less energy in the winter"]]], ["If Earth’s axis had no tilt at all, then:", [["0", "Earth would have no seasons"], ["5", "seasons would be twice as strong"], ["3", "it would be summer everywhere all year"]]]], "hint": "Seasons are opposite in the two hemispheres. Think about the angle of sunlight, not distance.", "chk": "5f262052", "box": "jgDAjSKlHuwvW632+dZvVPC/RUJMdM9LnZXuCPPuIdY1U+Tt4ytpUVZks+d14PGDr3L0czfuI5hvsXVaCb7qsXLW7AbAVjgMNqI/hiLFLp6yYK1C32RBSKedBXX9pDPxPdQVaeJ3fpr5cxMhIlLB5KlY+0YvgaHaJQa39wHNtp0f+Qw/EJAKTK7/jMl6uC955u/iB8FGzU2HFPM6QcfRIwVkCQX0cu/xiAnEWymhVAtYYMFOewSjeVBsyNsczP2JYkM6CJUp0JSEtN0QFqJV3zo2tl1mJ9mzROq2IPo="}, {"title": "Rebuild the Orbit", "teks": "TEKS 6.9A", "kind": "mc", "model": "orbit", "story": "The Professor’s orbit model was knocked over in the struggle. Rebuild it to read his notes. Click each position to move Earth around the Sun, and try turning the tilt off.", "qs": [["At which position does the Northern Hemisphere get the most direct sunlight?", [["1", "December"], ["8", "June"], ["5", "March"]]], ["As Earth revolves around the Sun, its axis:", [["2", "always points the same direction, toward Polaris"], ["6", "always points toward the Sun"], ["9", "flips direction every six months"]]], ["Day and night are about 12 hours each everywhere on Earth during:", [["3", "both equinoxes (March and September)"], ["7", "both solstices (June and December)"], ["4", "only the June position"]]], ["Light that hits a surface straight on (more directly) makes a patch that is:", [["5", "smaller and brighter, so the energy is more concentrated"], ["1", "larger and dimmer, so the energy is more concentrated"]]]], "hint": "The axis keeps pointing the same direction the whole trip. Which hemisphere leans toward the Sun at each spot?", "chk": "e4baa945", "box": "hneMej8pBclzd1Txa1OoyhkhIQjsR5SMf7Td3xfaDXcFVpjT+fZn79Odk8fL9X+adUH2LKaRBms9AROZVwoOrORCw0vcjNIAQyjnDQ+DAYFIHw9fdaggcZB1o+bSIKS3Kp5+H4jYKAXzdjAYb1XEIaop4oORhMZt6ey02RjH9Vjx2xSlzi5N7MUUgE4CeRhHzXQ7BSgKqESjSizfC70edqe0lIZ+GxCQPpqHfCr/5Beqg3S8wP4/VUiz1bJoxrxI2oc8q+jOtPBEzZWsvg=="}, {"title": "The Tide Table Alibi", "teks": "TEKS 6.9B", "kind": "mc", "story": "Gravy Boat Gary claims he was fishing on the Gulf Coast during the crime. His tide log should match the science. Does it?", "qs": [["Most coastlines, like the Texas Gulf Coast, have about how many high tides each day?", [["4", "one"], ["2", "two"], ["6", "four"]]], ["The Professor’s moon log shows a full moon on Thanksgiving week. Predict the tides that week:", [["9", "spring tides, because the Sun, Earth, and Moon are lined up"], ["3", "neap tides, because the Sun and Moon are at right angles to Earth"]]], ["Neap tides have:", [["1", "the smallest difference between high tide and low tide"], ["7", "the largest difference between high tide and low tide"]]], ["The main cause of Earth’s daily tides is:", [["8", "the Moon’s gravity pulling unevenly on Earth, making two bulges of water"], ["5", "strong winds pushing water onto the shore"], ["0", "the Sun’s gravity alone"]]]], "hint": "Spring tides have nothing to do with the season spring. Sun, Earth, and Moon lined up means the biggest tides.", "chk": "006bf67b", "box": "of8S+a+iSaLPjBnlpl8UjGmpOYKTKZNaj/0i0usY5sYPeCL2PJ/V/aA638IYl3hWoXTpDtAeAPrlVumiT4T1zb/5kbjyKidYpJey5G+tSXehuZMMzdgB0q9I7NYPR0LYJGQbUNCPAkCZTavvxODI92Y6/JpW7T9vi5TWuD3CBqvK2CQMJ5incAcDiTegMLUwQLSVhU9G7WidgF3zCWdlJG/XxL0gPZEzooTkKjyhJnCuE3ginR58cWK7bjsFsgZm9lYR6cpA1aDWQWENdQFwQ2ZDzo9hptlXTcms+lUbJuHe5TgHcST4TqCOXBmsUQ=="}, {"title": "Dying Stars in the Pie Safe", "teks": "TEKS 8.9A", "kind": "cards", "story": "Two envelopes of star cards were hidden in the pie safe. Click the cards in life-cycle order, from birth to death. The letters spell two code words.", "sets": [{"name": "Envelope X: a star about the same mass as our Sun", "cards": [["V", "Planetary nebula", "The outer layers drift away as a glowing shell of gas."], ["R", "Main-sequence star", "Fuses hydrogen into helium for about 10 billion years."], ["Y", "White dwarf", "A small, hot, dim leftover core that slowly cools."], ["G", "Nebula", "A cloud of gas and dust where gravity pulls material together."], ["A", "Red giant", "Runs low on hydrogen, swells up, and cools on the surface."]]}, {"name": "Envelope Z: a star about 20 times the mass of our Sun", "cards": [["S", "Supernova", "The core collapses and the star explodes."], ["F", "Nebula", "A cloud of gas and dust where gravity pulls material together."], ["T", "Neutron star or black hole", "The super-dense core left after the explosion."], ["A", "Red supergiant", "An enormous, cooler, extremely bright star."], ["E", "Main-sequence star", "Burns hot, bright, and fast, lasting only millions of years."]]}], "hint": "Both envelopes start the same way. A star’s mass decides how it ends: only very massive stars explode.", "chk": "fbb6c7d3", "box": "OAFsfJYpjdW60QXChH3p8wkRhbOmc/0NxlemH/oGZQSGV8sRvsZ5xb1GqO1CifuMUaVx4AJPHbnYvNOxhxA4M5E6IrORMGLxLQ1dQ4aA+LnVFESXuSi1s3T1obbro5rJnTvkrkLxx2ZMxwsT+pyIXmIRqFdYuL3TlS6Ch45Iessvl2RiXkjL+GaIStHlHpOwikhf"}, {"title": "The H-R Lineup", "teks": "TEKS 8.9A", "kind": "mc", "model": "hr", "story": "The Professor was classifying four stars when he vanished. Use his H-R diagram to finish his work.", "qs": [["A star is 5,800 K and exactly as luminous as the Sun. It is a:", [["3", "main-sequence star"], ["6", "white dwarf"]]], ["A star is 3,500 K and 10,000 times more luminous than the Sun. It is a:", [["1", "red dwarf"], ["7", "red giant or supergiant"]]], ["A star is 10,000 K but only 0.001 times as luminous as the Sun. It is a:", [["4", "white dwarf"], ["9", "blue supergiant"]]], ["On the H-R diagram, the hottest stars are on the:", [["2", "left side"], ["8", "right side"]]]], "hint": "Big, bright, and cool sits in the upper right. Hot but dim means small, in the lower left.", "chk": "7e86802f", "box": "XWOeV9JsHiwPMdX/MiV7oGPRCKim6iVRNZwdBVgpVYWdvj6WyxxbNgebChQeRNx//IdlM/o/txVIoB6Y1iTfuN1NOOOZKKjPWQhf7DM4QknKPSXRNkV7wyBh++ztOMfKiJY9ZtkDSsMk/koyB5TQeuvcq+GTtIWvwn/z9Zk+Z2cYW4dbCpB9kue0j3ZXKLv+VPrOfpU1pOsnjOfU3mQyJXhDdgrryQ4Z5bsax6nvAjkXiQI="}, {"title": "The Galactic Place Cards", "teks": "TEKS 8.9B", "kind": "mc", "model": "galaxies", "story": "The Professor made galaxy-shaped place cards for the feast. One card shows where his own seat was: our home in the universe.", "qs": [["A flat, rotating disk with a bright central bulge and arms that wind outward is a(n):", [["5", "spiral galaxy"], ["1", "elliptical galaxy"], ["8", "irregular galaxy"]]], ["A smooth, round-to-oval galaxy full of older, redder stars and very little gas and dust is a(n):", [["2", "spiral galaxy"], ["6", "elliptical galaxy"], ["9", "irregular galaxy"]]], ["A galaxy with no definite shape, like the Large Magellanic Cloud, is a(n):", [["0", "irregular galaxy"], ["3", "spiral galaxy"], ["7", "elliptical galaxy"]]], ["Our solar system is located:", [["4", "in the Orion Arm, roughly halfway out from the center of the Milky Way"], ["1", "at the very center of the Milky Way"], ["9", "in one of the arms of the Andromeda galaxy"]]]], "hint": "Spirals have arms, ellipticals are smooth ovals, and irregulars have no pattern. We are not at the center of anything.", "chk": "d3de1e44", "box": "1CQe5I2/923Vnc3LXT0Q2JLV4jyBmCKaLsIiXN7v/qZ4JaTqfuxCCTCB81yRas1noR/BfHjFs0RCHmmhJ3w2ljbPJ1NakaxjpKFC9Bxrn1/0sP4oe7lnnjVWe+3vMJuAaEw968oRSUludK6V7l7MfbGpD3LPb4ICKb8cY2pj2uq8D/T/QcTnsTq7xqBjoSAUQaS+0JVE+3aMjKjYb7oNp6rHuD2cMB+HBQ2KQikX9YuvSb1Zptaw6tLAyFVSPou+Zxm4hlOq"}], "finalChk": "7426a3d3", "finalBox": "HB+NmOq3a9vtSJfdK5wgJE57rQEvMhlk8sO86NzoGDep4IbKAd9a/k1ZZEsFbw44vYtzbWW1jq6B8qTsoSv3u/XFDn6VUhu2tT+U/KufgHvbTEZCg8ZqQw6x/G9PQyQ/Ul2Z5+u8jycAl/QOgzBiKQAsI8raVlH6VEoFfNe5gYFXnB2ED0tDrq3bEtWfuJVuZMKf+0PMYBvn1oW3j4mK7iSL5uN1E1NxBwAXMIQP/u1l2rbjWjpdKXvA2fjD42OHrWKxedRvyFyAGyylrl0ev22Gw6S3PN8o0mQPGK2nVXnf1Ll0rp3c4tqHD2OkIi7i5TNQpE+1hdJnMvc95vc1dBmG44y27RsKAx7UTAWUT9aWIHQiqefUow4hNHn3MYAkyGbodduz06bIIpyeTxidCXcuuPA5mSPamQM6wk0pz79y2i4ziy+tKRaiP7Ybw0ymOjBlRhpSAliLm2tm2acCG7kLbYDRkTspuPc1gytOdqjpy53Q5X/VdLlNkM/GYrK9hXZ3I1r5+kRpNeloG6klNKEyITFAJYQux+bFK/IrhnF2lhFhiedr8HsAGk+y/RsM4oLbWKytkwc/Fd3mpAV3Jmqirw+lujjas2qNZB59eR3hmoM5vxqjjZe0bdnCAimpXmrBFc2nVmGSjcGh4/jho5dBglPq64baPdXqh8E0F190y0GrSDxoTBeh/cgBiA4mv9sX6lnejEqOM+1AFAZ1awx4SBpElYBq3MIv5X6dSzfIHOAgsVC7rLr5hohF"};
+const SUSPECTS=[["Auntie Cranberry","The tart-tongued head of the dessert committee. The Professor called her sauce “too jiggly” last year."],["Chef Pumpkin Pie","The spicy, temperamental cook. Wanted the Professor’s corner office for a bigger kitchen."],["Sir Spud Mashington","A lumpy, smooth-talking night guard. Lost a bet with the Professor about the next full moon."],["Gravy Boat Gary","A drippy sailor who studies the ocean. The Professor proved his tide predictions wrong."],["Cornelia Cornbread","The crumbly, quiet greenhouse keeper. Wanted credit for discovering a new star."],["Captain Stuffing","A puffed-up retired astronaut. Jealous the Professor got the new telescope."]];
+const ROOMS=["Kitchen","Telescope Dome","Dining Hall","Pantry","Library","Greenhouse"];
+const METHODS=["Oven","Grill","Slow Cooker","Roasting Pan","Smoker","Deep Fryer"];
+const KEY="gobbles-escape-v1", PENALTY=60000;
+
+function fnv(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0}return h}
+function chk(k){return fnv("chk:"+k).toString(16).padStart(8,"0")}
+function dec(k,b64){let x=fnv("key:"+k)||1;const raw=atob(b64),out=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++){x^=x<<13;x^=x>>>17;x^=x<<5;x>>>=0;out[i]=raw.charCodeAt(i)^(x&255)}
+  return JSON.parse(new TextDecoder().decode(out))}
+
+let S;
+function fresh(){return{screen:"intro",team:"",start:0,end:0,cur:0,solved:[0,0,0,0,0,0],alibis:{},hints:3,hinted:{},lockUntil:{},picks:{},cards:{},reveal:null,fresh:[]}}
+function load(){try{const v=localStorage.getItem(KEY);S=v?Object.assign(fresh(),JSON.parse(v)):fresh()}catch(e){S=fresh()}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(Object.assign({},S,{fresh:[]})))}catch(e){}}
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function cleared(){const c=new Set();Object.values(S.alibis).forEach(a=>a.clears.forEach(x=>c.add(x)));return c}
+function fmt(ms){ms=Math.max(0,ms);const m=Math.floor(ms/60000),s=Math.floor(ms/1000)%60;return m+":"+String(s).padStart(2,"0")}
+
+function render(){
+  const app=$("#app");
+  if(S.screen==="intro") app.innerHTML=introHTML();
+  else if(S.screen==="closed") app.innerHTML=closedHTML();
+  else app.innerHTML=gameHTML();
+  bind(); tick();
+}
+
+function introHTML(){
+  return `<div class="wrap"><div class="intro">
+  <h1>Who Cooked Professor Gobbles?</h1>
+  <div class="story">
+   <p>Detectives, we have a problem.</p>
+   <p>Every Thanksgiving, the staff of Harvest Hill Observatory gathers for a feast under the stars. The guest of honor is always Professor Gobbles, the observatory’s finest turkey astronomer. He has spent his life studying the seasons, the tides, the stars, and the galaxies.</p>
+   <p>But this year, when the dinner bell rang, Professor Gobbles never showed up. An hour later, a golden-brown turkey appeared on the dinner table… wearing a tiny pair of reading glasses.</p>
+   <p><b>Professor Gobbles has been cooked.</b></p>
+   <p>Six guests were in the observatory tonight. Hidden in the Professor’s science is the evidence you need. Solve each station to unlock an Alibi Card. Each card clears suspects, rooms, or cooking methods. When only one of each remains, you’ll know who did it, where, and how.</p>
+  </div>
+  <h2>The suspects</h2>
+  <div class="suspects">${SUSPECTS.map(s=>`<div class="suspect"><b>${s[0]}</b><span>${s[1]}</span></div>`).join("")}</div>
+  <p class="muted">Rules: Every detective must be able to explain each answer. A wrong code locks that station for 60 seconds. Your team gets 3 Gravy Hints for the whole case.</p>
+  <div class="start"><input id="team" maxlength="40" placeholder="Your team name" aria-label="Team name" value="${esc(S.team)}"><button class="btn" id="go">Open the case</button></div>
+  </div></div>`;
+}
+
+function gameHTML(){
+  const c=cleared(), allDone=S.solved.every(Boolean);
+  const tabs=DATA.stations.map((st,i)=>{const open=i===0||S.solved[i-1];
+    return `<button class="tab ${S.solved[i]?"done":""}" data-tab="${i}" ${open?"":"disabled"} aria-current="${S.cur===i}">${S.solved[i]?"✓ ":""}Station ${i+1}</button>`}).join("")
+    +`<button class="tab" data-tab="6" ${allDone?"":"disabled"} aria-current="${S.cur===6}">Final accusation</button>`;
+  const col=(t,items)=>`<div class="fcol"><h3>${t}</h3><ul>${items.map(x=>`<li class="${c.has(x)?"cleared":""} ${S.fresh.includes(x)?"fresh":""}">${x}${c.has(x)?'<span class="stamp">Cleared</span>':""}</li>`).join("")}</ul></div>`;
+  const alibiList=Object.keys(S.alibis).sort().map(k=>`<p><b>Alibi ${+k+1}:</b> ${esc(S.alibis[k].text)}</p>`).join("");
+  return `<header class="topbar"><div class="wrap"><span class="case">Case file: Professor Gobbles</span>
+    <span class="stat">Team <b>${esc(S.team)}</b></span><span class="stat">Time <b id="clock">0:00</b></span><span class="stat">Gravy Hints <b>${S.hints}</b></span></div></header>
+  <div class="wrap"><nav class="tabs" aria-label="Stations">${tabs}</nav>
+  <div class="grid"><main class="station" id="station">${S.cur===6?finalHTML():stationHTML(S.cur)}</main>
+  <aside class="folder" aria-label="Case File"><h2>Case File</h2><p class="sub">Alibi Cards stamp each item cleared.</p>
+   ${col("Suspects",SUSPECTS.map(s=>s[0]))}${col("Rooms",ROOMS)}${col("Cooking methods",METHODS)}
+   <div class="alibis">${alibiList}</div></aside></div>
+  <footer><button id="reset">Teacher: reset this device</button></footer></div>`;
+}
+
+function stationHTML(i){
+  const st=DATA.stations[i], done=S.solved[i];
+  let body="";
+  if(st.model==="orbit") body+=orbitHTML();
+  if(st.model==="hr") body+=hrHTML();
+  if(st.model==="galaxies") body+=galaxyHTML();
+  if(st.kind==="mc"){
+    body+=st.qs.map((q,qi)=>`<div class="q"><p>${qi+1}. ${q[0]}</p><div class="choices">${q[1].map(ch=>`<button class="choice" data-q="${qi}" data-v="${ch[0]}" aria-pressed="${(S.picks[i]||{})[qi]===ch[0]}"><span class="num">${ch[0]}</span><span>${ch[1]}</span></button>`).join("")}</div></div>`).join("");
+  } else {
+    const cs=S.cards[i]||{0:[],1:[]};
+    body+=st.sets.map((set,si)=>{const order=shuffled(set.cards,si);const used=cs[si]||[];
+      return `<div class="envelope"><h3>${set.name}</h3><div class="cardrow">${order.map(cd=>`<button class="scard ${used.includes(cd[0]+cd[1])?"used":""}" data-set="${si}" data-card="${esc(cd[0]+cd[1])}" data-l="${cd[0]}" ${used.includes(cd[0]+cd[1])?"disabled":""}><span class="ltr">${cd[0]}</span><b>${cd[1]}</b><small>${cd[2]}</small></button>`).join("")}</div>
+      <div class="seq">${[0,1,2,3,4].map(k=>`<span class="slot">${used[k]?used[k][0]:""}</span>`).join("")}<button class="btn ghost" data-clear="${si}">Start over</button></div></div>`}).join("");
+  }
+  const L=st.kind==="cards"?10:4, pre=prefill(i);
+  const mk=k=>`<input class="dial" maxlength="1" inputmode="${L>4?"text":"numeric"}" aria-label="Code character ${k+1}" value="${esc(pre[k]||"")}" ${done?"disabled":""}>`;
+  const rng=(a,b)=>Array.from({length:b-a},(_,k)=>mk(a+k)).join("");
+  const dialHTML=L>4?`<div class="dials">${rng(0,5)}</div><div class="dials">${rng(5,10)}</div>`:`<div class="dials">${rng(0,4)}</div>`;
+  const hint=S.hinted[i]?`<div class="hintbox"><b>Gravy Hint:</b> ${st.hint}</div>`:"";
+  return `<h2>Station ${i+1}: ${st.title}</h2><div class="teks">${st.teks}</div>
+   <p class="story-line">${st.story}</p>${body}
+   <div class="lock">${dialHTML}
+     <button class="btn" id="try" ${done?"disabled":""}>${done?"Unlocked":"Try the lock"}</button>
+     ${!done&&!S.hinted[i]?`<button class="btn ghost" id="hint" ${S.hints?"":"disabled"}>Use a Gravy Hint</button>`:""}
+     <div class="lockmsg ${done?"good":""}" id="msg" role="status">${done?"Solved. The Alibi Card is in your Case File.":""}</div></div>${hint}`;
+}
+function prefill(i){const st=DATA.stations[i];
+  if(st.kind==="cards"){const cs=S.cards[i]||{},a=(cs[0]||[]).map(x=>x[0]),b=(cs[1]||[]).map(x=>x[0]);return [0,1,2,3,4].map(k=>a[k]||"").concat([0,1,2,3,4].map(k=>b[k]||""))}
+  const p=S.picks[i]||{};return [0,1,2,3].map(k=>p[k]||"")}
+function shuffled(cards,seed){return cards} // printed order is already scrambled
+
+function orbitHTML(){
+  const tilt=S.tiltOff?0:23.5, sel=S.orbitPos||"June";
+  const P={March:[280,72],June:[72,150],September:[280,228],December:[488,150]};
+  const earth=(n)=>{const [x,y]=P[n];const dx=280-x,dy=150-y,ang=Math.atan2(dy,dx)*180/Math.PI;const r=24,a=tilt*Math.PI/180;
+    const nx=x+Math.sin(a)*38,ny=y-Math.cos(a)*38,sx=x-Math.sin(a)*38,sy=y+Math.cos(a)*38;
+    const ex=Math.cos(a)*r,ey=Math.sin(a)*r;
+    return `<g class="epos" data-pos="${n}" style="cursor:pointer" tabindex="0" role="button" aria-label="${n} position">
+     <circle cx="${x}" cy="${y}" r="${r}" fill="#2C4B7A"/>
+     <path d="M${x} ${y-r} A${r} ${r} 0 0 1 ${x} ${y+r} Z" fill="#7FC4FF" transform="rotate(${ang} ${x} ${y})"/>
+     <line x1="${x-ex}" y1="${y-ey}" x2="${x+ex}" y2="${y+ey}" stroke="#fff" stroke-dasharray="3 3" stroke-width="1.2"/>
+     <line x1="${sx}" y1="${sy}" x2="${nx}" y2="${ny}" stroke="var(--ink)" stroke-width="2.5"/>
+     <text x="${nx+4}" y="${ny-2}" font-size="11" fill="var(--ink)">N</text>
+     ${n===sel?`<circle cx="${x}" cy="${y}" r="${r+7}" fill="none" stroke="var(--gold)" stroke-width="2.5"/>`:""}
+     <text x="${x}" y="${n==="March"?y-46:y+50}" text-anchor="middle" font-size="14" fill="var(--ink)" font-family="Special Elite,Courier New,monospace">${n}</text></g>`};
+  return `<div class="model"><svg viewBox="0 0 560 300" role="img" aria-label="Earth orbiting the Sun with a tilted axis">
+   <ellipse cx="280" cy="150" rx="208" ry="78" fill="none" stroke="var(--muted)" stroke-dasharray="5 5"/>
+   ${earth("March")}<circle cx="280" cy="150" r="34" fill="var(--sunfill)"/><text x="280" y="155" text-anchor="middle" font-size="13" fill="#3A2A10" font-family="Special Elite,Courier New,monospace">Sun</text>
+   ${earth("June")}${earth("September")}${earth("December")}
+   <text x="12" y="292" font-size="12" fill="var(--muted)">Axis tilt: ${tilt}°. Light blue = daytime side.</text></svg>
+   <div class="ctrl">${["March","June","September","December"].map(n=>`<button class="btn ghost" data-pos="${n}" aria-pressed="${n===sel}">${n}</button>`).join("")}
+   <button class="btn ghost" id="tilt" aria-pressed="${!!S.tiltOff}">${S.tiltOff?"Turn tilt back on":"Turn tilt off"}</button></div>
+   <p class="muted" style="margin:6px 2px 0">Look at the North Pole (N) at each position. Which hemisphere leans toward the Sun?</p></div>`;
+}
+
+function hrHTML(){
+  const xs=[[30000,60],[10000,260],[6000,354],[3000,480]], ys=[["1,000,000",30],["10,000",86],["100",142],["1 (Sun)",198],["0.01",254],["0.0001",310]];
+  return `<div class="model"><svg viewBox="0 0 520 370" role="img" aria-label="H-R diagram: luminosity up the side, temperature along the bottom with hot stars on the left">
+   <defs><linearGradient id="tg" x1="0" x2="1"><stop offset="0" stop-color="#5B8CFF"/><stop offset=".5" stop-color="#FFF3C4"/><stop offset="1" stop-color="#E5533A"/></linearGradient></defs>
+   <rect x="60" y="20" width="420" height="300" fill="none" stroke="var(--line)"/>
+   ${ys.map(y=>`<line x1="56" y1="${y[1]}" x2="60" y2="${y[1]}" stroke="var(--muted)"/><text x="52" y="${y[1]+4}" text-anchor="end" font-size="11" fill="var(--muted)">${y[0]}</text>`).join("")}
+   ${xs.map(x=>`<text x="${x[1]}" y="350" text-anchor="middle" font-size="11" fill="var(--muted)">${x[0].toLocaleString()}</text>`).join("")}
+   <rect x="60" y="324" width="420" height="10" fill="url(#tg)" rx="3"/>
+   <path d="M70 50 C190 110 300 170 360 198 S 450 262 478 292" stroke="var(--gold)" stroke-opacity=".35" stroke-width="26" fill="none" stroke-linecap="round"/>
+   <text x="150" y="128" font-size="13" fill="var(--ink)" transform="rotate(28 150 128)">Main sequence</text>
+   <ellipse cx="410" cy="140" rx="58" ry="24" fill="var(--cool)" fill-opacity=".25"/><text x="410" y="145" text-anchor="middle" font-size="13" fill="var(--ink)">Giants</text>
+   <ellipse cx="280" cy="44" rx="190" ry="15" fill="var(--hot)" fill-opacity=".2"/><text x="280" y="49" text-anchor="middle" font-size="13" fill="var(--ink)">Supergiants</text>
+   <ellipse cx="210" cy="284" rx="72" ry="15" fill="var(--hot)" fill-opacity=".25" transform="rotate(10 210 284)"/><text x="210" y="288" text-anchor="middle" font-size="13" fill="var(--ink)">White dwarfs</text>
+   <circle cx="360" cy="198" r="7" fill="var(--sunfill)" stroke="var(--ink)"/><text x="372" y="214" font-size="12" fill="var(--ink)">Sun</text>
+   <text x="16" y="170" font-size="12" fill="var(--muted)" transform="rotate(-90 16 170)" text-anchor="middle">Luminosity (Sun = 1)</text>
+   <text x="270" y="366" text-anchor="middle" font-size="12" fill="var(--muted)">Surface temperature (K): hotter on the left, cooler on the right</text></svg></div>`;
+}
+
+function galaxyHTML(){
+  const arms=[0,1,2].map(k=>`<path d="M60 60 m0 0 ${[0,1,2,3].map(j=>{const a=(k*120+j*70)*Math.PI/180,r=8+j*12;return `L${(60+Math.cos(a)*r).toFixed(1)} ${(60+Math.sin(a)*r*.75).toFixed(1)}`}).join(" ")}" stroke="#C9C2FF" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/>`).join("");
+  const dots=Array.from({length:22},(_,k)=>{const a=k*2.4,r=8+(k*7)%40;return `<circle cx="${(60+Math.cos(a)*r*.9).toFixed(1)}" cy="${(60+Math.sin(a)*r*.6).toFixed(1)}" r="${2+(k%3)}" fill="#BFD7FF" opacity=".8"/>`}).join("");
+  const card=(t,svg)=>`<figure style="margin:0;text-align:center"><svg viewBox="0 0 120 120" width="140" role="img" aria-label="Place card ${t}"><rect width="120" height="120" rx="10" fill="#120D24"/>${svg}</svg><figcaption class="type">Place card ${t}</figcaption></figure>`;
+  return `<div class="model" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+   ${card("A",`<g transform="rotate(-20 60 60)">${arms}<circle cx="60" cy="60" r="9" fill="#FFF1C9"/></g>`)}
+   ${card("B",`<defs><radialGradient id="eg"><stop offset="0" stop-color="#FFE7B8"/><stop offset=".6" stop-color="#E9A86B" stop-opacity=".6"/><stop offset="1" stop-color="#E9A86B" stop-opacity="0"/></radialGradient></defs><ellipse cx="60" cy="60" rx="46" ry="32" fill="url(#eg)"/>`)}
+   ${card("C",dots)}</div>`;
+}
+
+function finalHTML(){
+  const opt=(arr)=>`<option value="">Choose…</option>`+arr.map(x=>`<option>${x}</option>`).join("");
+  const lock=S.lockUntil.final&&S.lockUntil.final>Date.now();
+  return `<div class="final"><h2>The final accusation</h2>
+  <p>All six Alibi Cards are in your Case File. Only one suspect, one room, and one cooking method are left standing. Make it official.</p>
+  <label for="fs">We accuse</label><select id="fs">${opt(SUSPECTS.map(s=>s[0]))}</select>
+  <label for="fr">in the</label><select id="fr">${opt(ROOMS)}</select>
+  <label for="fm">with the</label><select id="fm">${opt(METHODS)}</select>
+  <div class="lock"><button class="btn" id="accuse" ${lock?"disabled":""}>Make the accusation</button><div class="lockmsg" id="msg" role="status"></div></div></div>`;
+}
+
+function closedHTML(){
+  return `<div class="wrap"><div class="closed"><div class="stamp-big">Case closed</div>
+  <h1>Cornelia Cornbread, in the Greenhouse, with the Deep Fryer.</h1>
+  ${S.reveal.map(p=>`<p>${esc(p)}</p>`).join("")}
+  <p class="muted">Team ${esc(S.team)} solved the case in ${fmt(S.end-S.start)} using ${3-S.hints} Gravy Hint${3-S.hints===1?"":"s"}.</p>
+  <div class="evidence"><h2>Make it stick</h2><p>The Coroner needs your science evidence. Write your answers on paper and bring them up:</p>
+  <ol><li>Professor Gobbles was cooked on Thanksgiving week, when the Northern Hemisphere has short days and cold weather. Explain why, using the words <i>tilt</i> and <i>direct sunlight</i>.</li>
+  <li>The Professor’s note says the stolen discovery was “a 3,000 K star with 50,000 times the Sun’s luminosity.” What type of star is it, and what will happen to it at the end of its life?</li></ol></div>
+  <footer><button id="reset">Teacher: reset this device</button></footer></div></div>`;
+}
+
+function bind(){
+  const on=(sel,ev,fn)=>document.querySelectorAll(sel).forEach(el=>el.addEventListener(ev,fn));
+  on("#go","click",()=>{const t=$("#team").value.trim();if(!t){$("#team").focus();return}S.team=t;S.screen="game";S.start=Date.now();save();render()});
+  on("#team","keydown",e=>{if(e.key==="Enter")$("#go").click()});
+  on("#reset","click",()=>{if(confirm("Erase this team’s progress and start a new case on this device?")){S=fresh();save();render()}});
+  on("[data-tab]","click",e=>{S.cur=+e.currentTarget.dataset.tab;save();render();window.scrollTo({top:0})});
+  on(".choice","click",e=>{const b=e.currentTarget,i=S.cur;(S.picks[i]=S.picks[i]||{})[b.dataset.q]=b.dataset.v;save();render()});
+  on(".scard","click",e=>{const b=e.currentTarget,i=S.cur,si=b.dataset.set;S.cards[i]=S.cards[i]||{0:[],1:[]};const arr=S.cards[i][si]=S.cards[i][si]||[];if(arr.length<5)arr.push(b.dataset.card);save();render()});
+  on("[data-clear]","click",e=>{const i=S.cur;S.cards[i]=S.cards[i]||{};S.cards[i][e.currentTarget.dataset.clear]=[];save();render()});
+  on("[data-pos]","click",e=>{S.orbitPos=e.currentTarget.dataset.pos;save();render()});
+  on("g.epos","keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();S.orbitPos=e.currentTarget.dataset.pos;render()}});
+  on("#tilt","click",()=>{S.tiltOff=!S.tiltOff;save();render()});
+  const dials=[...document.querySelectorAll(".dial")];
+  dials.forEach((d,k)=>{d.addEventListener("input",()=>{d.value=d.value.slice(-1).toUpperCase();if(d.value&&dials[k+1])dials[k+1].focus()});
+    d.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!d.value&&dials[k-1])dials[k-1].focus();if(e.key==="Enter")$("#try").click()})});
+  on("#hint","click",()=>{if(S.hints>0&&confirm("Spend 1 of your team’s Gravy Hints on this station?")){S.hints--;S.hinted[S.cur]=1;save();render()}});
+  on("#try","click",tryLock);
+  on("#accuse","click",accuse);
+}
+
+function tryLock(){
+  const i=S.cur,st=DATA.stations[i],msg=$("#msg");
+  if(S.lockUntil[i]>Date.now())return;
+  const code=[...document.querySelectorAll(".dial")].map(d=>d.value.trim().toUpperCase()).join("");
+  const need=st.kind==="cards"?10:4;
+  if(code.length<need){msg.className="lockmsg bad";msg.textContent=`The lock needs all ${need} characters.`;return}
+  if(chk(code)===st.chk){
+    const a=dec(code,st.box);S.alibis[i]=a;S.solved[i]=1;S.fresh=a.clears.slice();save();
+    showAlibi(i,a);
+  } else {
+    S.lockUntil[i]=Date.now()+PENALTY;save();
+    const lk=$(".lock");lk.classList.remove("shake");void lk.offsetWidth;lk.classList.add("shake");
+    tick();
+  }
+}
+function showAlibi(i,a){
+  const m=document.createElement("div");m.className="modal";m.setAttribute("role","dialog");m.setAttribute("aria-modal","true");
+  m.innerHTML=`<div class="card"><h2>Alibi Card ${i+1}</h2><p>${esc(a.text)}</p><p class="clears">Cleared: ${a.clears.join(", ")}</p><button class="btn" id="ok">${i<5?"Stamp it and go to Station "+(i+2):"Stamp it and make the accusation"}</button></div>`;
+  document.body.appendChild(m);const ok=$("#ok",m);ok.focus();
+  ok.addEventListener("click",()=>{m.remove();S.cur=i+1;save();render();setTimeout(()=>{S.fresh=[]},800)});
+}
+function accuse(){
+  const v=[$("#fs").value,$("#fr").value,$("#fm").value],msg=$("#msg");
+  if(v.some(x=>!x)){msg.className="lockmsg bad";msg.textContent="Choose a suspect, a room, and a cooking method.";return}
+  const k=v.join("|");
+  if(chk(k)===DATA.finalChk){S.reveal=dec(k,DATA.finalBox);S.end=Date.now();S.screen="closed";save();render();window.scrollTo({top:0})}
+  else{S.lockUntil.final=Date.now()+PENALTY;save();render();}
+}
+
+let timer;
+function tick(){
+  clearTimeout(timer);
+  const clock=$("#clock");if(clock)clock.textContent=fmt(Date.now()-S.start);
+  const msg=$("#msg");
+  if(S.screen==="game"&&msg){
+    const key=S.cur===6?"final":S.cur,until=S.lockUntil[key]||0,left=until-Date.now(),btn=$(S.cur===6?"#accuse":"#try");
+    if(left>0){msg.className="lockmsg bad";msg.textContent=(S.cur===6?"The Coroner isn’t convinced. Check your Case File. ":"Wrong code. ")+`The lock opens again in ${Math.ceil(left/1000)} seconds.`;if(btn)btn.disabled=true}
+    else if(until){delete S.lockUntil[key];save();msg.textContent="";msg.className="lockmsg";if(btn&&!(S.cur<6&&S.solved[S.cur]))btn.disabled=false}
+  }
+  if(S.screen==="game")timer=setTimeout(tick,500);
+}
+load();render();
+</script>
+</body>
+</html>
